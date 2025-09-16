@@ -1,4 +1,41 @@
-﻿/* global clearInterval, console, setInterval */
+﻿import { initDatabase, saveDatabase } from './db.js';
+
+let db;
+
+async function setupDB() {
+    db = await initDatabase();
+    console.log("Database initialized!");
+}
+
+async function addMessage(msg) {
+    db.run("INSERT INTO test (message) VALUES (?);", [msg]);
+    saveDatabase(db);
+}
+
+async function getMessages() {
+    const res = db.exec("SELECT * FROM test;");
+    if (res.length > 0) {
+        return res[0].values.map(row => row[1]); // return message column
+    }
+    return [];
+}
+
+// Example: initialize on taskpane load
+setupDB();
+
+
+/**
+ * Get last message
+ * @customfunction
+ * @returns {string} The sum of the two numbers.
+ */
+export async function GET_MESSAGES() {
+  const messages = await getMessages();
+  return "msg:" + messages.join(", ");
+}
+
+
+/* global clearInterval, console, setInterval */
 
 /**
  * Add two numbers
