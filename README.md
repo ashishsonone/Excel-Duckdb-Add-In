@@ -12,14 +12,14 @@ Usage - Proof of concept
 `=EDUCK.QUERY("SELECT NOW();")`
 
 ## TODO
-[ ] Return arrays to fill multiple cells
-[ ] input ranges / table name so can run queries on that
+- [ ] Return arrays to fill multiple cells
+- [ ] input ranges / table name so can run queries on that
     `=QUERY("SELECT COUNT(*) FROM t", "t", A1:D10)`
     `=QUERY("SELECT * FROM marks JOIN students on marks.student_id=students.id", "marks", A1:D10, "students", F1:K10)`
-[ ] clean up connections after query runs
-[ ] How to isolate parallel queries
-[ ] Figure out how to work without network location for manifest
-[ ] Deploy as a public addin so that one click install
+- [ ] clean up connections after query runs
+- [ ] How to isolate parallel queries
+- [ ] Figure out how to work without network location for manifest
+- [ ] Publish to addin store so that one click install
 
 ## How to run locally for development
 - Run npm run dev-server - this will serve the assets on localhost:3000
@@ -38,6 +38,33 @@ Usage - Proof of concept
     and inside it "Excel Duckdb Addin"
     click and it should appear on right side of home ribbon
 
+## References
+### Excel addin tutorial
+    https://learn.microsoft.com/en-us/office/dev/add-ins/tutorials/excel-tutorial-create-custom-functions?tabs=excel-windows
 
+### a functional addin SQLookup (https://sqlookup.com/)
+    it uses sqlite internally
 
+    Used this as inspiration that something 
+    like this can be done locally within excel itself
+    
+    Earlier plan was to run the duckdb on a server 
+    and use api calls to execute queries
 
+    but both privacy and latency wise, running it locally makes
+    total sense
+
+### Run https local
+
+    Microsoft’s Office Add-in tooling can generate and trust dev certificates for you:
+    `npx office-addin-dev-certs install`
+
+    That command:
+    Creates a dev cert/key
+    Installs them into your OS trust store (so Excel won’t complain as much)
+    Stores files you can reuse
+
+    alternatively, when you use Yeoman scaffolding
+    `npx yo office`
+    it does it automatically for you
+     
