@@ -40,31 +40,34 @@ Usage - Proof of concept
 
 ## References
 ### Excel addin tutorial
-    https://learn.microsoft.com/en-us/office/dev/add-ins/tutorials/excel-tutorial-create-custom-functions?tabs=excel-windows
+https://learn.microsoft.com/en-us/office/dev/add-ins/tutorials/excel-tutorial-create-custom-functions?tabs=excel-windows
 
 ### a functional addin SQLookup (https://sqlookup.com/)
-    it uses sqlite internally
+it uses sqlite internally
 
-    Used this as inspiration that something 
-    like this can be done locally within excel itself
-    
-    Earlier plan was to run the duckdb on a server 
-    and use api calls to execute queries
+Used this as inspiration that something 
+like this can be done locally within excel itself
 
-    but both privacy and latency wise, running it locally makes
-    total sense
+Earlier plan was to run the duckdb on a server 
+and use api calls to execute queries
+
+but both privacy and latency wise, running it locally makes
+total sense
 
 ### Run https local
 
-    Microsoft’s Office Add-in tooling can generate and trust dev certificates for you:
-    `npx office-addin-dev-certs install`
+Microsoft’s Office Add-in tooling can generate and trust dev certificates for you:
+`npx office-addin-dev-certs install`
 
-    That command:
-    Creates a dev cert/key
-    Installs them into your OS trust store (so Excel won’t complain as much)
-    Stores files you can reuse
+That command:
+- Creates a dev cert/key
+- Installs them into your OS trust store (so Excel won’t complain as much)
+- Stores files you can reuse
 
-    alternatively, when you use Yeoman scaffolding
-    `npx yo office`
-    it does it automatically for you
-     
+once you have those certs you can serve using any http-server
+`npx http-server . -S -C C:\Users\<user>\.office-addin-dev-certs\localhost.crt -K C:\Users\<user>\.office-addin-dev-certs\localhost.key -p 3000 -a localhost`
+
+Alternatively, when you use Yeoman scaffolding to setup the project
+`npx yo office`
+it does it automatically for you
+
