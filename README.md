@@ -38,6 +38,9 @@ Usage - Proof of concept
     and inside it "Excel Duckdb Addin"
     click and it should appear on right side of home ribbon
 
+- clear excel cache
+    Remove-Item -Recurse -Force "$env:LOCALAPPDATA\Microsoft\Office\16.0\WEF\*"
+
 ## References
 ### Excel addin tutorial
 https://learn.microsoft.com/en-us/office/dev/add-ins/tutorials/excel-tutorial-create-custom-functions?tabs=excel-windows
@@ -70,4 +73,12 @@ once you have those certs you can serve using any http-server
 Alternatively, when you use Yeoman scaffolding to setup the project
 `npx yo office`
 it does it automatically for you
+
+## implemetation notes
+duckdb.connect() reuses the connection to same underlying db
+so to isolate queries
+we create new schema s1, s2, s3 - one for each query
+insert data into this schema
+and then at the end drop the schema (along with all tables)
+
 

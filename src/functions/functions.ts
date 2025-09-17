@@ -1,13 +1,25 @@
-﻿import { initDuckDB } from './duckdb.js';
+﻿import { initDuckDBBuilder, duckdbResultTo2D } from './duckdb';
+import { convertToArrow } from './arrow.js';
 
-let db // : duckdb.AsyncDuckDB;
+/**
+ * @customfunction
+ */
+async function VERSION() {
+  return "21:07"
+}
+
+
+let dbBuilder; // use db = await dbBuilder()
 let LOGS = 'Hello'
+const Counter = {
+  schema: 0
+}
 
 async function init() {
-  db = await initDuckDB()
+  dbBuilder = await initDuckDBBuilder()
 }
-init()
 
+init()
 
 /*
 // SQL.js - sqlite wasm
@@ -47,32 +59,124 @@ setupDB();
 //   return "msg:" + messages.join(", ");
 // }
 
-async function duckTest(q) {
+async function execDuckQuery(q, range) {
+  ADD_LOG("exec start")
+  const db = dbBuilder // await dbBuilder()
+  ADD_LOG("dbbuilder")
   const conn = await db.connect()
+  ADD_LOG("db connect")
+
+  try {
+    return await execDuckQueryCore(db, conn, q, range)
+  }
+  catch(e){
+    ADD_LOG("exec error" + e.message)
+    throw e
+  }
+  finally {
+    ADD_LOG("conn closing")
+    await conn.close()
+    // ADD_LOG("db terminatee")
+    // await db.terminate()
+  }
+
+}
+
+async function execDuckQueryCore(db, conn, q, range) {
+  const jsonRowContent = convertToArrow(range)
+
+  ADD_LOG("rowContent")
+
+  await db.registerFileText(
+      'rows.json',
+      JSON.stringify(jsonRowContent),
+  );
+
+  ADD_LOG("register json file")
+
+  const schemaId = Counter.schema
+  Counter.schema += 1
+  const schemaName = "s" + schemaId
+
+  await conn.query(`CREATE SCHEMA ${schemaName}`)
+  await conn.query(`USE ${schemaName}`)
+  ADD_LOG("use schema" + schemaName)
+
+  await conn.insertJSONFromPath('rows.json', { name: `rows`, schema: schemaName });
+  // await conn.insertArrowTable(arrowTable, {name: 't'});
+  // await conn.insertArrowTable(EOS, { name: 't' });
+  ADD_LOG("insert json")
+
   const r = await conn.query(q)
   ADD_LOG("success" + r.toArray())
-  return r.toArray()
+
+
+  await conn.query(`DROP SCHEMA ${schemaName} CASCADE`)
+  ADD_LOG("drop schema")
+
+  const x = duckdbResultTo2D(r)
+  ADD_LOG("result to 2d")
+  return x
 }
+
+/**
+ * Echoes back the given range.
+ * @customfunction
+ * @param {any[][]} inputRange The Excel range to echo.
+ * @returns {any[][]} The same range, unchanged.
+ */
+function ECHO(inputRange) {
+  return inputRange;
+}
+
+
+
+/**
+ * Returns the first element (0,0) of the given range.
+ * @customfunction
+ * @param {any[][]} inputRange The Excel range.
+ * @returns {any[][]} The top-left element.
+ */
+function FIRSTCELL(inputRange) {
+  // return [['A', 'B'], ['1', '2']];
+
+  try{
+    const table = convertToArrow(inputRange)
+    // return "ok"
+    return inputRange
+  }
+  catch (e){
+    return e.message
+  }
+
+}
+
+
 
 /**
  * Run duck query
  * @customfunction
  * @param {string} query Query to run
- * @returns {string} run query in duckdb.
+ * @param {any[][]} range Excel range to query
+ * @returns {any[][]} run query in duckdb.
  */
-async function QUERY(query) {
+async function QUERY(query, range) {
+    LOGS = '<reset>'
+    
     ADD_LOG("query: " + query)
+    // return range
     // Create table and insert data
     //await conn.query("CREATE TABLE if not exists test (id INTEGER, message VARCHAR);");
     //await conn.query("INSERT INTO test VALUES (1, 'Hello'), (2, 'World');");
     
     // Query
     try {
-      const res = await duckTest(query)
-      return res + ""
+      const result = await execDuckQuery(query, range)
+      return result
     }
     catch(e){
-      return e.message
+      ADD_LOG("error" + e.message)
+      return [["error" + e.message]]
     }
 
     // console.log(res.toArray());
