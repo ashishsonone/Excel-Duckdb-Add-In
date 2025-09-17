@@ -1,13 +1,13 @@
 ﻿import { initDuckDB } from './duckdb.js';
 
-let conn;
-let LOGS = 'Hello world'
+let db // : duckdb.AsyncDuckDB;
+let LOGS = 'Hello'
 
 async function init() {
-  conn = await initDuckDB()
+  db = await initDuckDB()
 }
-
 init()
+
 
 /*
 // SQL.js - sqlite wasm
@@ -47,6 +47,13 @@ setupDB();
 //   return "msg:" + messages.join(", ");
 // }
 
+async function duckTest(q) {
+  const conn = await db.connect()
+  const r = await conn.query(q)
+  ADD_LOG("success" + r.toArray())
+  return r.toArray()
+}
+
 /**
  * Run duck query
  * @customfunction
@@ -61,8 +68,8 @@ async function DUCK_QUERY(query) {
     
     // Query
     try {
-      const res = await conn.query(query);
-      return "Success"
+      const res = await duckTest(query)
+      return res + ""
     }
     catch(e){
       return e.message
@@ -88,7 +95,7 @@ async function GET_LOGS(x){
  * @returns {string} 
  */
 async function ADD_LOG(msg){
-  LOGS += "\n\r" + msg
+  LOGS += "\n>>" + msg
   return 'ok'
 }
 

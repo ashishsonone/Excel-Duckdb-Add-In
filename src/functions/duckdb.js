@@ -1,17 +1,20 @@
 import * as duckdb from '@duckdb/duckdb-wasm';
 
-// Use the BundlerFileLocator for simplicity
-const logger = new duckdb.ConsoleLogger();
-const bundle = duckdb.getJsDelivrBundles(); // points to prebuilt WASM files
-const worker = new duckdb.AsyncDuckDB(logger);
-
 export async function initDuckDB() {
-    await worker.instantiate(bundle.bundler);
-    const db = new duckdb.AsyncDuckDB(logger);
-    await db.instantiate(bundle.bundler);
+  const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
-    // Create a connection
-    const conn = await db.connect();
-    return conn;
+  // Select a bundle based on browser checks
+  const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+  const worker_url = URL.createObjectURL(
+    new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'})
+  );
+
+  // Instantiate the asynchronus version of DuckDB-Wasm
+  const worker = new Worker(worker_url);
+  const logger = new duckdb.ConsoleLogger();
+  const db = new duckdb.AsyncDuckDB(logger, worker);
+  await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+  URL.revokeObjectURL(worker_url);
+  return db
 }
-
