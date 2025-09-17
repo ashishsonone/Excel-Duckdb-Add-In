@@ -1,4 +1,17 @@
-﻿import { initDatabase, saveDatabase } from './db.js';
+﻿import { initDuckDB } from './duckdb.js';
+
+let conn;
+let LOGS = 'Hello world'
+
+async function init() {
+  conn = await initDuckDB()
+}
+
+init()
+
+/*
+// SQL.js - sqlite wasm
+import { initDatabase, saveDatabase } from './db.js';
 
 let db;
 
@@ -22,16 +35,61 @@ async function getMessages() {
 
 // Example: initialize on taskpane load
 setupDB();
+*/
 
+// /**
+//  * Get last message
+//  * @customfunction
+//  * @returns {string} The sum of the two numbers.
+//  */
+// export async function GET_MESSAGES() {
+//   const messages = await getMessages();
+//   return "msg:" + messages.join(", ");
+// }
 
 /**
- * Get last message
+ * Run duck query
  * @customfunction
- * @returns {string} The sum of the two numbers.
+ * @param {string} query Query to run
+ * @returns {string} run query in duckdb.
  */
-export async function GET_MESSAGES() {
-  const messages = await getMessages();
-  return "msg:" + messages.join(", ");
+async function DUCK_QUERY(query) {
+    ADD_LOG("query: " + query)
+    // Create table and insert data
+    //await conn.query("CREATE TABLE if not exists test (id INTEGER, message VARCHAR);");
+    //await conn.query("INSERT INTO test VALUES (1, 'Hello'), (2, 'World');");
+    
+    // Query
+    try {
+      const res = await conn.query(query);
+      return "Success"
+    }
+    catch(e){
+      return e.message
+    }
+
+    // console.log(res.toArray());
+    // return "1234"
+}
+
+/**
+ * Get logs
+ * @customfunction
+ * @returns {string} get logs
+ */
+async function GET_LOGS(x){
+  return LOGS
+}
+
+/**
+ * Add logs
+ * @customfunction
+ * @param {string} msg log msg
+ * @returns {string} 
+ */
+async function ADD_LOG(msg){
+  LOGS += "\n\r" + msg
+  return 'ok'
 }
 
 
