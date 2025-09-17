@@ -22,6 +22,7 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "@duckdb/duckdb-wasm": "^1.30.0",
     "core-js": "^3.36.0",
     "regenerator-runtime": "^0.14.1",
     "sql.js": "^1.13.0"
