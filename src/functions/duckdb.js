@@ -1,6 +1,6 @@
 import * as duckdb from '@duckdb/duckdb-wasm';
 
-export async function initDuckDBBuilder() {
+export async function initDuckDB() {
   const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
   // Select a bundle based on browser checks

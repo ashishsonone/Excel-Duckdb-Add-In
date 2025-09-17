@@ -20,6 +20,7 @@ Usage - Proof of concept
 - [ ] How to isolate parallel queries
 - [ ] Figure out how to work without network location for manifest
 - [ ] Publish to addin store so that one click install
+- [ ] clean up files added via db.registerFileTex
 
 ## How to run locally for development
 - Run npm run dev-server - this will serve the assets on localhost:3000
