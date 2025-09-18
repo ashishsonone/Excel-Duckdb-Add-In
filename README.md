@@ -9,11 +9,13 @@ tested on Excel 2024 Windows 10
 function namespace is `EDUCK` (Excel Duck)
 
 Usage - Proof of concept
-`=EDUCK.QUERY("SELECT NOW();")`
-`=EXDUCK.QUERY(E15, "scores", scores, "city", city_info)`
+`=DUCKEX.QUERY("SELECT NOW();")`
+`=DUCKEX.QUERY("SELECT COUNT(*) FROM scores", "scores", A1:D7)`
+`=DUCKEX.QUERY(E15, "scores", scores, "city", city_info)`
 cell E15 = "SELECT Name, State FROM
 scores JOIN city
 ON scores.City=city.City"
+`scores` and `city` are range references (named)
 
 
 
@@ -29,8 +31,20 @@ ON scores.City=city.City"
 - [x] clean up files added via db.registerFileText - use db.DropFile()
 - [x] Add debug functions - DEBUG_LAST_EXEC_LOGS, DEBUG_TABLES, DEBUG_FILES
 
+## prod build
+npm run build
+
+host the dist/ files on https endpoint
+
+Deploy using netlify
+netlify deploy --dir=dist/ --prod
+
+access at
+https://duckex.netlify.app/manifest.xml
+
+
 ## How to run locally for development
-- Run npm run dev-server - this will serve the assets on localhost:3000
+- Run `npm run dev-server` - this will serve the assets on localhost:3000
     you need to have trusted access to https://localhost
     as excel needs add ins to be served on https
 

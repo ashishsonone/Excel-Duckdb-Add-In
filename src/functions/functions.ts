@@ -188,11 +188,20 @@ async function DEBUG_LIVE_TABLES(){
  * @customfunction
  * @returns {any[][]} list of tables
  */
-async function DEBUG_TABLES(){
+async function DEBUG_TABLES(include_all?: boolean){
   const headers = ['Schema', 'Active', 'Table Count', 'Table List']
   const rows = []
   for (const name in DB_TABLES) {
     const info = DB_TABLES[name]
+
+    if (include_all) {
+      // no check
+    }
+    else if (! info.active) {
+      // skip this as not active
+      continue
+    }
+
     rows.push([
       name, 
       info.active, 
@@ -209,13 +218,23 @@ async function DEBUG_TABLES(){
  * @customfunction
  * @returns {any[][]} list of files
  */
-async function DEBUG_FILES() {
+async function DEBUG_FILES(include_all?: boolean) {
   // ADD_LOG("pending files" + PENDING_FILES)
 
   const headers = ['FileName', 'Active']
   const rows = []
   for (const name in REGISTERED_FILES) {
-    rows.push([name, REGISTERED_FILES[name]])
+    const is_file_active = REGISTERED_FILES[name]
+
+     if (include_all) {
+      // no check
+    }
+    else if (! is_file_active) {
+      // skip this as not active
+      continue
+    }
+
+    rows.push([name, is_file_active])
   }
   return [headers, ...rows]
 }
