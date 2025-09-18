@@ -29,15 +29,22 @@ module.exports = async (env, options) => {
       clean: true,
     },
     resolve: {
-      extensions: [".html", ".js"],
+      extensions: [".html", ".js", ".ts"],
     },
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.(js)$/,
           exclude: /node_modules/,
           use: {
             loader: "babel-loader",
+          },
+        },
+        {
+          test: /\.(ts)$/,
+          exclude: /node_modules/,
+          use: {
+            loader: "ts-loader",
           },
         },
         {

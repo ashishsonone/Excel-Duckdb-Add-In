@@ -5,7 +5,7 @@ import { convertToArrow } from './arrow.js';
  * @customfunction
  */
 async function VERSION() {
-  return "21:37"
+  return "11:38"
 }
 
 
@@ -20,6 +20,10 @@ async function init() {
 }
 
 init()
+
+type RangeMap = {
+  [x: string]: any[][]
+}
 
 /*
 // SQL.js - sqlite wasm
@@ -59,13 +63,13 @@ setupDB();
 //   return "msg:" + messages.join(", ");
 // }
 
-async function execDuckQuery(q, range) {
+async function execDuckQuery(q: string, inputRangeMap: RangeMap) {
   ADD_LOG("exec start")
   const conn = await db.connect()
   ADD_LOG("db connect")
 
   try {
-    return await execDuckQueryCore(db, conn, q, range)
+    return await execDuckQueryCore(db, conn, q, inputRangeMap)
   }
   catch(e){
     ADD_LOG("exec error" + e.message)
@@ -80,43 +84,47 @@ async function execDuckQuery(q, range) {
 
 }
 
-async function execDuckQueryCore(db, conn, q, range) {
+async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
   const schemaId = Counter.schema
   Counter.schema += 1
   const schemaName = "s" + schemaId
 
   const fileName = `${schemaName}_rows.json`
   
-  if (range) {
-    const jsonRowContent = convertToArrow(range)
-
-    ADD_LOG("rowContent")
-
-    await db.registerFileText(
-        fileName,
-        JSON.stringify(jsonRowContent),
-    );
-
-    ADD_LOG("register json file")
-  }
+  
 
   await conn.query(`CREATE SCHEMA ${schemaName}`)
   await conn.query(`USE ${schemaName}`)
   ADD_LOG("use schema" + schemaName)
 
-  if (range) {
-    await conn.insertJSONFromPath(fileName, { name: `rows`, schema: schemaName });
-    ADD_LOG("insert json")
+  if (inputRangeMap) {
+    for (const alias in inputRangeMap) {
+      const range = inputRangeMap[alias]
 
+      const jsonRowContent = convertToArrow(range)
+
+      ADD_LOG("rowContent")
+
+      await db.registerFileText(
+          fileName,
+          JSON.stringify(jsonRowContent),
+      );
+
+      ADD_LOG("register json file")
+
+      await conn.insertJSONFromPath(fileName, { name: `${alias}`, schema: schemaName });
+      ADD_LOG("insert json")
+    }
     // await db.unregisterFile(fileName);
   }
 
   // await conn.insertArrowTable(arrowTable, {name: 't'});
   // await conn.insertArrowTable(EOS, { name: 't' });
 
+  ADD_LOG("querying" + q)
   const r = await conn.query(q)
+  ADD_LOG("success")
   ADD_LOG("success" + r.toArray())
-
 
   await conn.query(`DROP SCHEMA ${schemaName} CASCADE`)
   ADD_LOG("drop schema")
@@ -128,25 +136,52 @@ async function execDuckQueryCore(db, conn, q, range) {
 
 
 
+// /**
+//  * Run duck query
+//  * @customfunction
+//  * @param {string} query Query to run
+//  * @param {string} [Optional] alias1 Excel range to query
+//  * @param {any[][]} [Optional] range1 Excel range to query
+//  * @returns {any[][]} run query in duckdb.
+//  */
+
 /**
- * Run duck query
+ * Returns a hardcoded 2D array for testing.
  * @customfunction
- * @param {string} query Query to run
- * @param {any[][]} [Optional] range Excel range to query
- * @returns {any[][]} run query in duckdb.
  */
-async function QUERY(query, range) {
-    LOGS = '<reset>'
+export async function Q2(query: string, alias11?: string, range11?: any[][]): Promise<any[][]> {
+  return [["ok2"]];
+}
+
+/**
+ * @customfunction
+ */
+export async function QUERY(query: string, 
+    alias1?: string, range1? : any[][],
+    // alias2?: string, range2? : any[][],
+    // alias3?: string, range3? : any[][],
+    // alias4?: string, range4? : any[][],
+    // alias5?: string, range5? : any[][],
+  ): Promise<any[][]> {
+    LOGS = '<reset2>'
     
     ADD_LOG("query: " + query)
+
     // return range
     // Create table and insert data
     //await conn.query("CREATE TABLE if not exists test (id INTEGER, message VARCHAR);");
     //await conn.query("INSERT INTO test VALUES (1, 'Hello'), (2, 'World');");
     
+    const inputRangeMap: RangeMap  = {
+      [alias1]: range1,
+      // [alias2]: range2,
+      // [alias3]: range3,
+      // [alias4]: range4,
+      // [alias5]: range5,
+    }
     // Query
     try {
-      const result = await execDuckQuery(query, range)
+      const result = await execDuckQuery(query, inputRangeMap)
       return result
     }
     catch(e){
@@ -173,7 +208,7 @@ async function DEBUG_LAST_EXEC_LOGS(){
  * @returns {any[][]} run query in duckdb.
  */
 async function DEBUG_DB_TABLES(){
-  return await QUERY("SELECT database_name, schema_name, table_name FROM duckdb_tables", null)
+  return await QUERY("SELECT database_name, schema_name, table_name FROM duckdb_tables")
 }
 
 
