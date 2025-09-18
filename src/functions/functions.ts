@@ -1,5 +1,6 @@
 ﻿import { initDuckDB, duckdbResultTo2D } from './duckdb';
 import { convertToArrow } from './arrow.js';
+import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 
 /**
  * @customfunction
@@ -9,10 +10,16 @@ async function VERSION() {
 }
 
 
-let db; // use db = await dbBuilder()
+let db: AsyncDuckDB; // use db = await dbBuilder()
 let LOGS = 'Hello'
 const Counter = {
   schema: 0
+}
+
+const REGISTERED_FILES : {[k: string]: boolean} = {
+}
+
+const DB_TABLES : {[k: string]: {active: boolean, tables: string[]}} = {
 }
 
 async function init() {
@@ -25,43 +32,6 @@ type RangeMap = {
   [x: string]: any[][]
 }
 
-/*
-// SQL.js - sqlite wasm
-import { initDatabase, saveDatabase } from './db.js';
-
-let db;
-
-async function setupDB() {
-    db = await initDatabase();
-    console.log("Database initialized!");
-}
-
-async function addMessage(msg) {
-    db.run("INSERT INTO test (message) VALUES (?);", [msg]);
-    saveDatabase(db);
-}
-
-async function getMessages() {
-    const res = db.exec("SELECT * FROM test;");
-    if (res.length > 0) {
-        return res[0].values.map(row => row[1]); // return message column
-    }
-    return [];
-}
-
-// Example: initialize on taskpane load
-setupDB();
-*/
-
-// /**
-//  * Get last message
-//  * @customfunction
-//  * @returns {string} The sum of the two numbers.
-//  */
-// export async function GET_MESSAGES() {
-//   const messages = await getMessages();
-//   return "msg:" + messages.join(", ");
-// }
 
 async function execDuckQuery(q: string, inputRangeMap: RangeMap) {
   ADD_LOG("exec start")
@@ -89,31 +59,39 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
   Counter.schema += 1
   const schemaName = "s" + schemaId
 
-  
-  
-
   await conn.query(`CREATE SCHEMA ${schemaName}`)
   await conn.query(`USE ${schemaName}`)
   ADD_LOG("use schema" + schemaName)
+  DB_TABLES[schemaName] = {'active' : true, 'tables' : []}
 
   if (inputRangeMap) {
     for (const alias in inputRangeMap) {
       const range = inputRangeMap[alias]
-      const fileName = `${schemaName}_${alias}.json`
+      const fileName = `${schemaName}.${alias}.json`
+      const fullTableName = `${schemaName}.${alias}`
 
       const jsonRowContent = convertToArrow(range)
 
       ADD_LOG("rowContent")
+
+      REGISTERED_FILES[fileName] = true
 
       await db.registerFileText(
           fileName,
           JSON.stringify(jsonRowContent),
       );
 
-      ADD_LOG("register json file")
+      ADD_LOG(`register file ${fileName}`)
 
       await conn.insertJSONFromPath(fileName, { name: `${alias}`, schema: schemaName });
       ADD_LOG(`insert json ${fileName}`)
+
+      DB_TABLES[schemaName].tables.push(alias)
+
+      await db.dropFile(fileName)
+      ADD_LOG(`drop file ${fileName}`)
+      // delete PENDING_FILES[fileName]
+      REGISTERED_FILES[fileName] = false
     }
     // await db.unregisterFile(fileName);
   }
@@ -128,30 +106,13 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
 
   await conn.query(`DROP SCHEMA ${schemaName} CASCADE`)
   ADD_LOG("drop schema")
+  DB_TABLES[schemaName].active = false
 
   const x = duckdbResultTo2D(r)
   ADD_LOG("result to 2d")
   return x
 }
 
-
-
-// /**
-//  * Run duck query
-//  * @customfunction
-//  * @param {string} query Query to run
-//  * @param {string} [Optional] alias1 Excel range to query
-//  * @param {any[][]} [Optional] range1 Excel range to query
-//  * @returns {any[][]} run query in duckdb.
-//  */
-
-/**
- * Returns a hardcoded 2D array for testing.
- * @customfunction
- */
-export async function Q2(query: string, alias11?: string, range11?: any[][]): Promise<any[][]> {
-  return [["ok2"]];
-}
 
 /**
  * @customfunction
@@ -214,99 +175,52 @@ async function DEBUG_LAST_EXEC_LOGS(){
 }
 
 /**
- * Get table info
+ * Get live table info directly from duckdb tables
  * @customfunction
- * @returns {any[][]} run query in duckdb.
+ * @returns {any[][]} list of tables
  */
-async function DEBUG_DB_TABLES(){
+async function DEBUG_LIVE_TABLES(){
   return await QUERY("SELECT database_name, schema_name, table_name FROM duckdb_tables")
 }
 
 /**
- * Get table info
+ * Get table history
  * @customfunction
- * @returns {any[][]} run query in duckdb.
+ * @returns {any[][]} list of tables
  */
-async function DEBUG_FILES() {
-  const files = await db.listFiles();
-  return [[JSON.stringify(files)]]
+async function DEBUG_TABLES(){
+  const headers = ['Schema', 'Active', 'Table Count', 'Table List']
+  const rows = []
+  for (const name in DB_TABLES) {
+    const info = DB_TABLES[name]
+    rows.push([
+      name, 
+      info.active, 
+      info.tables.length, 
+      info.tables.join(',')
+    ])
+  }
+  return [headers, ...rows]
 }
 
+
 /**
- * Add logs
+ * Get registered files history
  * @customfunction
- * @param {string} msg log msg
- * @returns {string} 
+ * @returns {any[][]} list of files
  */
+async function DEBUG_FILES() {
+  // ADD_LOG("pending files" + PENDING_FILES)
+
+  const headers = ['FileName', 'Active']
+  const rows = []
+  for (const name in REGISTERED_FILES) {
+    rows.push([name, REGISTERED_FILES[name]])
+  }
+  return [headers, ...rows]
+}
+
 async function ADD_LOG(msg){
   LOGS += "\n>>" + msg
   return 'ok'
 }
-
-
-/* global clearInterval, console, setInterval */
-
-// /**
-//  * Add two numbers
-//  * @customfunction
-//  * @param {number} first First number
-//  * @param {number} second Second number
-//  * @returns {number} The sum of the two numbers.
-//  */
-// export function add(first, second) {
-//   return first + second;
-// }
-
-// /**
-//  * Displays the current time once a second
-//  * @customfunction
-//  * @param {CustomFunctions.StreamingInvocation<string>} invocation Custom function invocation
-//  */
-// export function clock(invocation) {
-//   const timer = setInterval(() => {
-//     const time = currentTime();
-//     invocation.setResult(time);
-//   }, 1000);
-
-//   invocation.onCanceled = () => {
-//     clearInterval(timer);
-//   };
-// }
-
-/**
- * Returns the current time
- * @returns {string} String with the current time formatted for the current locale.
- */
-export function currentTime() {
-  return new Date().toLocaleTimeString();
-}
-
-// /**
-//  * Increments a value once a second.
-//  * @customfunction
-//  * @param {number} incrementBy Amount to increment
-//  * @param {CustomFunctions.StreamingInvocation<number>} invocation
-//  */
-// export function increment(incrementBy, invocation) {
-//   let result = 0;
-//   const timer = setInterval(() => {
-//     result += incrementBy;
-//     invocation.setResult(result);
-//   }, 1000);
-
-//   invocation.onCanceled = () => {
-//     clearInterval(timer);
-//   };
-// }
-
-// /**
-//  * Writes a message to console.log().
-//  * @customfunction LOG
-//  * @param {string} message String to write.
-//  * @returns String to write.
-//  */
-// export function logMessage(message) {
-//   console.log(message);
-
-//   return message;
-// }

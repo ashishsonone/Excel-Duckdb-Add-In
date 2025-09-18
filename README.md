@@ -26,7 +26,8 @@ ON scores.City=city.City"
 - [x] Isolate parallel queries - uses new schema per query
 - [ ] Figure out how to work without network location for manifest
 - [ ] Publish to addin store so that one click install
-- [ ] clean up files added via db.registerFileText
+- [x] clean up files added via db.registerFileText - use db.DropFile()
+- [x] Add debug functions - DEBUG_LAST_EXEC_LOGS, DEBUG_TABLES, DEBUG_FILES
 
 ## How to run locally for development
 - Run npm run dev-server - this will serve the assets on localhost:3000
