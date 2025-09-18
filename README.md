@@ -1,17 +1,15 @@
-# Excel Add In to run duck db queries
+# Excel Add In to run SQL queries using duck db
 
-Uses duckdb wasm to run query directly inside Excel (Desktop)
+Uses duckdb wasm to run sql query directly inside Excel (Desktop)
     as Office Javascript Add-in
 
 
 tested on Excel 2024 Windows 10
 
-function namespace is `EDUCK` (Excel Duck)
-
 Usage - Proof of concept
-`=DUCKEX.QUERY("SELECT NOW();")`
-`=DUCKEX.QUERY("SELECT COUNT(*) FROM scores", "scores", A1:D7)`
-`=DUCKEX.QUERY(E15, "scores", scores, "city", city_info)`
+`=DUCK_SQL("SELECT NOW();")`
+`=DUCK_SQL("SELECT COUNT(*) FROM scores", "scores", A1:D7)`
+`=DUCK_SQL(E15, "scores", scores, "city", city_info)`
 cell E15 = "SELECT Name, State FROM
 scores JOIN city
 ON scores.City=city.City"
@@ -95,6 +93,10 @@ once you have those certs you can serve using any http-server
 Alternatively, when you use Yeoman scaffolding to setup the project
 `npx yo office`
 it does it automatically for you
+
+### validate manifest.xml
+npx office-addin-manifest validate dist/manifest.xml 
+The manifest is valid.
 
 ## implemetation notes
 duckdb.connect() reuses the connection to same underlying db

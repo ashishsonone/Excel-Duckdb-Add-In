@@ -8,9 +8,9 @@
   <Description DefaultValue="Write your own Excel functions in JavaScript."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://www.contoso.com/help"/>
+  <SupportUrl DefaultValue="https://duckex.netlify.app/help"/>
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://duckex.netlify.app</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -41,7 +41,7 @@
             <Metadata>
               <SourceLocation resid="Functions.Metadata.Url"/>
             </Metadata>
-            <Namespace resid="Functions.Namespace"/>
+            <!-- <Namespace resid="Functions.Namespace"/> -->
           </ExtensionPoint>
         </AllFormFactors>
         <DesktopFormFactor>
@@ -95,7 +95,7 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="Functions.Namespace" DefaultValue="DUCKEX"/>
+        <!-- <bt:String id="Functions.Namespace" DefaultValue="DUCKEX"/> -->
         <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane"/>

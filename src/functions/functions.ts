@@ -2,12 +2,12 @@
 import { convertToArrow } from './arrow.js';
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 
-/**
- * @customfunction
- */
-async function VERSION() {
-  return "11:38"
-}
+// /**
+//  * @customfunction
+//  */
+// async function VERSION() {
+//   return "11:38"
+// }
 
 
 let db: AsyncDuckDB; // use db = await dbBuilder()
@@ -117,7 +117,7 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
 /**
  * @customfunction
  */
-export async function QUERY(query: string, 
+export async function DUCK_SQL(query: string, 
     alias1?: string, range1? : any[][],
     alias2?: string, range2? : any[][],
     alias3?: string, range3? : any[][],
@@ -165,81 +165,87 @@ export async function QUERY(query: string,
     // return "1234"
 }
 
-/**
- * Get logs
- * @customfunction
- * @returns {string} get logs
- */
-async function DEBUG_LAST_EXEC_LOGS(){
-  return LOGS
-}
-
-/**
- * Get live table info directly from duckdb tables
- * @customfunction
- * @returns {any[][]} list of tables
- */
-async function DEBUG_LIVE_TABLES(){
-  return await QUERY("SELECT database_name, schema_name, table_name FROM duckdb_tables")
-}
-
-/**
- * Get table history
- * @customfunction
- * @returns {any[][]} list of tables
- */
-async function DEBUG_TABLES(include_all?: boolean){
-  const headers = ['Schema', 'Active', 'Table Count', 'Table List']
-  const rows = []
-  for (const name in DB_TABLES) {
-    const info = DB_TABLES[name]
-
-    if (include_all) {
-      // no check
-    }
-    else if (! info.active) {
-      // skip this as not active
-      continue
-    }
-
-    rows.push([
-      name, 
-      info.active, 
-      info.tables.length, 
-      info.tables.join(',')
-    ])
-  }
-  return [headers, ...rows]
-}
-
-
-/**
- * Get registered files history
- * @customfunction
- * @returns {any[][]} list of files
- */
-async function DEBUG_FILES(include_all?: boolean) {
-  // ADD_LOG("pending files" + PENDING_FILES)
-
-  const headers = ['FileName', 'Active']
-  const rows = []
-  for (const name in REGISTERED_FILES) {
-    const is_file_active = REGISTERED_FILES[name]
-
-     if (include_all) {
-      // no check
-    }
-    else if (! is_file_active) {
-      // skip this as not active
-      continue
-    }
-
-    rows.push([name, is_file_active])
-  }
-  return [headers, ...rows]
-}
 
 async function ADD_LOG(msg){
   LOGS += "\n>>" + msg
   return 'ok'
 }
+
+// ------------------------------
+
+
+// /**
+//  * Get logs
+//  * @customfunction
+//  * @returns {string} get logs
+//  */
+// async function DUCK_DEBUG_LAST_EXEC_LOGS(){
+//   return LOGS
+// }
+
+// /**
+//  * Get live table info directly from duckdb tables
+//  * @customfunction
+//  * @returns {any[][]} list of tables
+//  */
+// async function DUCK_DEBUG_LIVE_TABLES(){
+//   return await DUCK_SQL("SELECT database_name, schema_name, table_name FROM duckdb_tables")
+// }
+
+// /**
+//  * Get table history
+//  * @customfunction
+//  * @returns {any[][]} list of tables
+//  */
+// async function DUCK_DEBUG_TABLES(include_all?: boolean){
+//   const headers = ['Schema', 'Active', 'Table Count', 'Table List']
+//   const rows = []
+//   for (const name in DB_TABLES) {
+//     const info = DB_TABLES[name]
+
+//     if (include_all) {
+//       // no check
+//     }
+//     else if (! info.active) {
+//       // skip this as not active
+//       continue
+//     }
+
+//     rows.push([
+//       name, 
+//       info.active, 
+//       info.tables.length, 
+//       info.tables.join(',')
+//     ])
+//   }
+//   return [headers, ...rows]
+// }
+
+
+// /**
+//  * Get registered files history
+//  * @customfunction
+//  * @returns {any[][]} list of files
+//  */
+// async function DUCK_DEBUG_FILES(include_all?: boolean) {
+//   // ADD_LOG("pending files" + PENDING_FILES)
+
+//   const headers = ['FileName', 'Active']
+//   const rows = []
+//   for (const name in REGISTERED_FILES) {
+//     const is_file_active = REGISTERED_FILES[name]
+
+//      if (include_all) {
+//       // no check
+//     }
+//     else if (! is_file_active) {
+//       // skip this as not active
+//       continue
+//     }
+
+//     rows.push([name, is_file_active])
+//   }
+//   return [headers, ...rows]
+// }
+
+

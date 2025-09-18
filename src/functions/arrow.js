@@ -1,5 +1,3 @@
-import * as arrow from "apache-arrow";
-
 export function convertToArrow(values) {
   // First row = headers
   const headers = values[0];

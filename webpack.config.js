@@ -6,7 +6,7 @@ const CustomFunctionsMetadataPlugin = require("custom-functions-metadata-plugin"
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://duckex.netlify.app/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
+const urlProd = "https://duckex.netlify.app/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOY ENT LOCATION
 
 /* global require, module, process */
 
@@ -85,6 +85,10 @@ module.exports = async (env, options) => {
             to: "assets/[name][ext][query]",
           },
           {
+            from: "src/website/",
+            to: ".",
+          },
+          {
             from: "manifest*.xml",
             to: "[name]" + "[ext]",
             transform(content) {
@@ -108,6 +112,9 @@ module.exports = async (env, options) => {
       },
       port: process.env.npm_package_config_dev_server_port || 3000,
     },
+    // optimization: {
+    //   minimize: false
+    // }
   };
 
   return config;
