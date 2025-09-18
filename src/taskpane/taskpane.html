@@ -32,20 +32,39 @@
 </head>
 
 <body class="ms-font-m ms-welcome ms-Fabric">
-    <header class="ms-welcome__header ms-bgColor-neutralLighter">
-        <img width="90" height="90" src="../../assets/icon-128.png" alt="Contoso" title="Contoso" />
-        <h1 class="ms-font-su">Welcome to DuckEx (Duckdb Excel Addin)</h1>
-    </header>
-    <section id="sideload-msg" class="ms-welcome__main">
-        <h2 class="ms-font-xl">Please <a target="_blank" href="https://learn.microsoft.com/office/dev/add-ins/testing/test-debug-office-add-ins#sideload-an-office-add-in-for-testing">sideload</a> your add-in to see app body.</h2>
-    </section>
-    <main id="app-body" class="ms-welcome__main" style="display: none;">
+    <!-- <header class="ms-welcome__header ms-bgColor-neutralLighter">
+        
+        <h3 class="ms-font-su">DuckEx (Duckdb Excel Addin)</h3>
+    </header> -->
+    
+    <main id="app-body" class="ms-welcome__main">
+        <h3> <img width="50" height="50" src="../../assets/icon-64.png" alt="DuckEx" title="DuckEx" /></h3>
         <h2 class="ms-font-xl"> Run SQL (powered by duckdb) directly in excel </h2>
-        <pre id="log">
-            =DUCKEX.QUERY("SELECT NOW();")
-            =DUCKEX.QUERY("SELECT COUNT(*) FROM scores", "scores", A1:D7)
-            =DUCKEX.QUERY(E15, "scores", scores, "city", city_info)
-        </pre>
+        <pre class="m-0"><code>
+
+=DUCK_SQL("SELECT NOW();")
+            
+=DUCK_SQL(
+    "SELECT COUNT(*) FROM scores", 
+    "scores", 
+    A1:D7  // range
+)
+
+=DUCK_SQL(
+    E15, // sql query
+    "sco", 
+    scores, // named range
+    "city", 
+    city_info // named range
+)
+
+cell E15 = 
+"SELECT Name, sco.City, State 
+FROM
+sco JOIN city
+ON sco.City=city.City"
+
+      </code></pre>
     </main>
 </body>
 
