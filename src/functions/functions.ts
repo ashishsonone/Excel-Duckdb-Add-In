@@ -89,7 +89,6 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
   Counter.schema += 1
   const schemaName = "s" + schemaId
 
-  const fileName = `${schemaName}_rows.json`
   
   
 
@@ -100,6 +99,7 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
   if (inputRangeMap) {
     for (const alias in inputRangeMap) {
       const range = inputRangeMap[alias]
+      const fileName = `${schemaName}_${alias}.json`
 
       const jsonRowContent = convertToArrow(range)
 
@@ -113,7 +113,7 @@ async function execDuckQueryCore(db, conn, q, inputRangeMap: RangeMap) {
       ADD_LOG("register json file")
 
       await conn.insertJSONFromPath(fileName, { name: `${alias}`, schema: schemaName });
-      ADD_LOG("insert json")
+      ADD_LOG(`insert json ${fileName}`)
     }
     // await db.unregisterFile(fileName);
   }
@@ -158,10 +158,10 @@ export async function Q2(query: string, alias11?: string, range11?: any[][]): Pr
  */
 export async function QUERY(query: string, 
     alias1?: string, range1? : any[][],
-    // alias2?: string, range2? : any[][],
-    // alias3?: string, range3? : any[][],
-    // alias4?: string, range4? : any[][],
-    // alias5?: string, range5? : any[][],
+    alias2?: string, range2? : any[][],
+    alias3?: string, range3? : any[][],
+    alias4?: string, range4? : any[][],
+    alias5?: string, range5? : any[][],
   ): Promise<any[][]> {
     LOGS = '<reset2>'
     
@@ -173,12 +173,23 @@ export async function QUERY(query: string,
     //await conn.query("INSERT INTO test VALUES (1, 'Hello'), (2, 'World');");
     
     const inputRangeMap: RangeMap  = {
-      [alias1]: range1,
-      // [alias2]: range2,
-      // [alias3]: range3,
-      // [alias4]: range4,
-      // [alias5]: range5,
     }
+    if (alias1 && range1) {
+      inputRangeMap[alias1] = range1
+    }
+    if (alias2 && range2) {
+      inputRangeMap[alias2] = range2
+    }
+    if (alias3 && range2) {
+      inputRangeMap[alias3] = range3
+    }
+    if (alias4 && range3) {
+      inputRangeMap[alias4] = range4
+    }
+    if (alias5 && range4) {
+      inputRangeMap[alias5] = range5
+    }
+
     // Query
     try {
       const result = await execDuckQuery(query, inputRangeMap)
@@ -211,7 +222,15 @@ async function DEBUG_DB_TABLES(){
   return await QUERY("SELECT database_name, schema_name, table_name FROM duckdb_tables")
 }
 
-
+/**
+ * Get table info
+ * @customfunction
+ * @returns {any[][]} run query in duckdb.
+ */
+async function DEBUG_FILES() {
+  const files = await db.listFiles();
+  return [[JSON.stringify(files)]]
+}
 
 /**
  * Add logs

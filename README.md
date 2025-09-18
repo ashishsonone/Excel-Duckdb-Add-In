@@ -10,17 +10,23 @@ function namespace is `EDUCK` (Excel Duck)
 
 Usage - Proof of concept
 `=EDUCK.QUERY("SELECT NOW();")`
+`=EXDUCK.QUERY(E15, "scores", scores, "city", city_info)`
+cell E15 = "SELECT Name, State FROM
+scores JOIN city
+ON scores.City=city.City"
+
+
 
 ## TODO
-- [ ] Return arrays to fill multiple cells
-- [ ] input ranges / table name so can run queries on that
+- [x] Return arrays to fill multiple cells
+- [x] input ranges / table name so can run queries on that
     `=QUERY("SELECT COUNT(*) FROM t", "t", A1:D10)`
     `=QUERY("SELECT * FROM marks JOIN students on marks.student_id=students.id", "marks", A1:D10, "students", F1:K10)`
-- [ ] clean up connections after query runs
-- [ ] How to isolate parallel queries
+- [x] clean up connections after query runs
+- [x] Isolate parallel queries - uses new schema per query
 - [ ] Figure out how to work without network location for manifest
 - [ ] Publish to addin store so that one click install
-- [ ] clean up files added via db.registerFileTex
+- [ ] clean up files added via db.registerFileText
 
 ## How to run locally for development
 - Run npm run dev-server - this will serve the assets on localhost:3000
