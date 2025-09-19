@@ -24,9 +24,11 @@ ON scores.City=city.City"
     `=QUERY("SELECT * FROM marks JOIN students on marks.student_id=students.id", "marks", A1:D10, "students", F1:K10)`
 - [x] clean up connections after query runs
 - [x] Isolate parallel queries - uses new schema per query
-- [?] Publish to addin store so that one click install
-    this seems pretty complicated. need 365 subscription and partner account
-    so skipping for now. loading via trusted network location is pretty straighforward.
+- [ ] ⚠️ Publish to addin store so that one click install
+    this seems pretty complicated. need 365 subscription, partner account and what not
+    so skipping for now. 
+    Anywas, loading via trusted network location is pretty straighforward.
+
 - [x] clean up files added via db.registerFileText - use db.DropFile()
 - [x] Add debug functions - DEBUG_LAST_EXEC_LOGS, DEBUG_TABLES, DEBUG_FILES
 - [x] Figure out how to work without network location for manifest
