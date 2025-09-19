@@ -24,10 +24,14 @@ ON scores.City=city.City"
     `=QUERY("SELECT * FROM marks JOIN students on marks.student_id=students.id", "marks", A1:D10, "students", F1:K10)`
 - [x] clean up connections after query runs
 - [x] Isolate parallel queries - uses new schema per query
-- [ ] Figure out how to work without network location for manifest
-- [ ] Publish to addin store so that one click install
+- [?] Publish to addin store so that one click install
+    this seems pretty complicated. need 365 subscription and partner account
+    so skipping for now. loading via trusted network location is pretty straighforward.
 - [x] clean up files added via db.registerFileText - use db.DropFile()
 - [x] Add debug functions - DEBUG_LAST_EXEC_LOGS, DEBUG_TABLES, DEBUG_FILES
+- [x] Figure out how to work without network location for manifest
+    hack: For now we can just create a network share for a public folder
+    so you actually don't need another computer on the network
 
 ## prod build
 npm run build
@@ -46,7 +50,9 @@ https://duckex.netlify.app/manifest.xml
     you need to have trusted access to https://localhost
     as excel needs add ins to be served on https
 
-- put manifest.xml to a network folder \\192.168.1.43\AddinCatalog\
+- put manifest.xml to a network folder \\DESKTOP-IO73HI8\PublicUser\AddinCatalog
+    Note: just create a public network share and put manifest in there
+    Here I shared "/Users/Public" -> as "PublicUser" share name
 
 - Add this folder locatoin to excel trusted addin
     File -> Options -> Trust Center -> Trust Center Settings -> Trusted Add-in Catalogs
